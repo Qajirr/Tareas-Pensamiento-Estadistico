@@ -17,8 +17,8 @@ output:
 
 #### **Integrantes :**
 
--   Alumno 1
--   Alumno 2
+-   Tamara Marciel
+-   Vicente Pinochet
 
 #### **Cuerpo Docente:**
 
@@ -291,10 +291,17 @@ Para la segunda parte de este experimento, con las funciones ya creadas, proyect
 ```{r eval=FALSE}
 # Función para obtener el desarrollo de las apuestas
 ruina <- function(fondos = 100, apuesta = 5){
-  while (0<fondos & fondos<200) {
-    
+  vec_fondos <- c(fondos)  # Monto inicial
+  prob_ganar <- 8 / 19    # Probabilidad de ganar
+  while (0<fondos & fondos<=200) {
+    if (runif(1) < prob_ganar) {  # Generar un número aleatorio para determinar el resultado del juego
+      fondos <- fondos + apuesta  # Ganó
+    } else {
+      fondos <- fondos - apuesta  # Perdió, disminuye los fondos
+    }
+    vec_fondos <- c(vec_fondos, fondos)  # Guardar los fondos despues de cada iteracion
   }
-  return(vec_fondos) # Devuelve un vector con el desarrollo de los fondos
+  return(vec_fondos) #
 }
 
 plot(ruina(), type="l", col="blue", xlab="N° de juegos", ylab="Fondos", main="Evolución de los fondos (apuesta = 5)")
@@ -302,7 +309,38 @@ plot(ruina(apuesta = 25), type="l", col="blue", xlab="N° de juegos", ylab="Fond
 plot(ruina(apuesta = 50), type="l", col="blue", xlab="N° de juegos", ylab="Fondos", main="Evolución de los fondos (apuesta = 50)")
 ```
 
- 
+## Respuesta 5
+
+Con una apuesta de \$5, la evolución de los fondos muestra una tendencia a la baja, el jugador juega muchas veces antes de quedarse sin dinero. Es difícil que el jugador supere los \$120, ya que las ganancias pequeñas no compensan las pérdidas acumuladas
+
+Con una apuesta de \$25, el jugador se queda sin fondos en menos tiempo comparado con una apuesta de \$5.
+
+Con una apuesta de \$50, las pérdidas se sienten de manera aún más rápida, pero las ganancias, cuando ocurren, son mayores, llegando a ganar considerablemente más veces comparado con los otros dos casos.
+
+```{r}
+probabilidad_ruina <- function(apuesta = 5, n_simulaciones = 5000){
+  exitos <- 0  # Contador de éxitos
+  
+  for (i in 1:n_simulaciones) {
+    final_fondos <- ruina(apuesta = apuesta)
+    if (final_fondos[length(final_fondos)] > 200) {
+      exitos <- exitos + 1  # Exito si se superan los 200 dólares
+    }
+  }
+  
+  prob_exito <- exitos / n_simulaciones  # Calcular la probabilidad de éxito
+  return(prob_exito)
+}
+
+# Calcular la probabilidad de ruina para diferentes tamaños de apuesta
+prob_ruina_5 <- probabilidad_ruina(apuesta = 5)
+prob_ruina_25 <- probabilidad_ruina(apuesta = 25)
+prob_ruina_50 <- probabilidad_ruina(apuesta = 50)
+
+cat("Probabilidad de ruina con apuesta de 5 dólares:", prob_ruina_5, "\n")
+cat("Probabilidad de ruina con apuesta de 25 dólares:", prob_ruina_25, "\n")
+cat("Probabilidad de ruina con apuesta de 50 dólares:", prob_ruina_50, "\n")
+```
 
 <hr />
 
