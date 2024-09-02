@@ -207,35 +207,60 @@ Imagine que usted es participante del concurso y desea calcular la probabilidad 
 
 ```{r eval=FALSE}
 # Creamos una función que simule el juego
-montyhall <- function( cambiar = TRUE){
-  Puertas <- sample(1:3,3)             #Puertas donde la posición que tiene el 3 es el premio
-  cat("Puertas:",Puertas)
-  cat(";")
-  posicion <- sample(1:3,1)            #Elección del participante.
-  cat("Posicion elegida:",posicion, ";")
+montyhall <- function(cambiar = TRUE) {
+  Puertas <- sample(1:3, 3)   # Generar las puertas con una que tenga el premio (3)
+  cat("Puertas:", Puertas, "; ")
   
-  descartables <- which(setdiff(Puertas, Puertas[posicion]) != 3) #posicion de puertas que pueden ser descartados
-  cat("Puertas descartables:",descartables,";")
+  posicion <- sample(1:3, 1)  # Elección inicial del participante
+  cat("Posición elegida:", posicion, "; ")
   
-  puerta_descartada <- which(Puertas == sample(descartables,1)) #posicion de la puerta descartada
+  # Identificar puertas descartables (que no tienen el premio)
+  puertas_descartables <- which(Puertas != 3 & 1:3 != posicion)
+  cat("Puertas descartables:", puertas_descartables, "; ")
   
-  cat("Puerta descartada:",puerta_descartada, ";")
+  # Escoger una puerta para descartar
+  puerta_descartada <- puertas_descartables[sample(length(puertas_descartables), 1)]
+  cat("Puerta descartada:", puerta_descartada, "; ")
   
-  
-  if(cambiar == TRUE){
-    posicion <- sample(1:2,1)
+  # Si el participante decide cambiar su elección
+  if (cambiar) {
+    nuevas_opciones <- setdiff(1:3, c(posicion, puerta_descartada))
+    posicion <- nuevas_opciones
   }
-  Eleccion <- Puertas[posicion]
+  cat("Nueva elección:", posicion, "; ")
   
-  return(Eleccion) # Retornamos la elección, esta puede que tenga el premio o no
+  # Verificar si la elección final tiene el premio
+  Eleccion <- ifelse(Puertas[posicion] == 3, "Ganaste", "Perdiste")
+  cat("Eleccion", Eleccion)
+  return(Eleccion) 
 }
-montyhall()
-sample(1:3,3)
+
+# Ejemplo de uso:
+cat(montyhall(TRUE))
+
+
 # Función que simula N juegos
+
 n_juegos <- function(n = 10 ,cambiar_puerta = TRUE){
+  convergencia <- numeric(n)
   
-sample(1:3,1)  
+  for (juego in 1:n) {
+    cat("Juego",juego , ":")
+    resultado <- montyhall(cambiar_puerta)
+    
+    # Convertir el resultado a numérico: 1 para "Ganaste", 0 para "Perdiste"
+    convergencia[juego] <- ifelse(resultado == "Ganaste", 1, 0)
+  }
+  return(convergencia)
 }
+
+# Ejecutar la simulación de 10 juegos
+resultados <- n_juegos(10, TRUE)
+cat("Resultados de los juegos:", resultados, "\n")
+
+# Graficar la convergencia
+plot(cumsum(resultados) / 1:10, type = "l", xlab = "Número de juegos", ylab = "Proporción de éxitos", main = "Convergencia de Monty Hall")
+
 ```
 
 ------------------------------------------------------------------------
