@@ -1,7 +1,7 @@
 ---
 title: "Tarea 1"
 output:
-  html_document:
+  html_document: 
     df_print: paged
 ---
 
@@ -97,7 +97,7 @@ En base al dataset propuesto realice un análisis exploratorio de los datos (EDA
 
 **Respuesta**
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 data <- read.csv("hearth_database.csv")
 
 #summary(data
@@ -113,15 +113,15 @@ for (i in 7:14) {
 
 ```
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 cor(data[,7:14])
 ```
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 boxplot(x=data[,7:14],main="Boxplot data")
 ```
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 data <- read.csv("hearth_database.csv")
 data$target <- as.numeric(data$target == "YES")
 
@@ -158,7 +158,7 @@ Pruebe el teorema central del limite aplicando un muestreo de la media en las di
 
 **Respuesta**
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 # Definición de variables o estructuras necesarias para el muestreo.
 n <- 1000
 tamaño <- 10
@@ -362,7 +362,7 @@ Imagine que usted es participante del concurso y desea calcular la probabilidad 
 
 **Respuesta:**
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 # Creamos una función que simule el juego
 montyhall <- function(cambiar = TRUE) {
   Puertas <- sample(1:3, 3) #Puertas donde la posición que tiene el 3 es el premio
@@ -441,7 +441,7 @@ Se le aconseja que para simular los lanzamientos de dados utilice la función `s
 
 **Primer grupo de eventos:**
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 library(ggplot2)
 # Primer grupo de eventos
 N_lan = 1000 # Numero de lanzamientos
@@ -494,7 +494,7 @@ Es claro observar que ambos eventos convergen a valores practicamente iguales a 
 
 **Segundo grupo de eventos:**
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 # Segundo grupo de eventos
 N_lan = 1000 # Numero de lanzamientos
   
@@ -562,7 +562,7 @@ Para la segunda parte de este experimento, con las funciones ya creadas, proyect
 
 **Respuesta**
 
-```{r eval=FALSE}
+```{r, fig.width=12}
 # Función para obtener el desarrollo de las apuestas
 ruina <- function(fondos = 100, apuesta = 5){
   vec_fondos <- c(fondos)  # Monto inicial
