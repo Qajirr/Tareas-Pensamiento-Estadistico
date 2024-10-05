@@ -235,7 +235,10 @@ print(sesgo_estimador_sigma_4)
 > Respuesta
 
 -   [ ] ¿Qué puede decir del sesgo de los estimadores $\hat{p}_{n,\sigma}$?¿Son los estimadores con menos sesgo más precisos? Justifique.
-    -   [ ] Como el sesgo es la diferencia con el valor esperado, al calcular el sesgo para los diversos valores de sigma obtenemos que para sigma 0 y 1
+    -   Como el sesgo es la diferencia entre el valor esperado del estimador y el verdadero valor del parámetro, al calcular el sesgo para los diversos valores de $\sigma$, obtenemos que para $\sigma=0$ y $\sigma=1$ el sesgo es cercano a 0. El ruido añadido es muy pequeño o inexistente, por lo que el estimador está estimando correctamente el parámetro $\hat{p}_{n,\sigma}$.
+    -   Para $\sigma=2$, el sesgo es negativo, lo que sugiere que el estimador está subestimando el valor de $\hat{p}_{n,\sigma}$.
+    -   Para $\sigma=4$, el sesgo es positivo, lo que significa que el estimador está sobreestimando el valor de $\hat{p}_{n,\sigma}$.
+    -   Por lo tanto los estimadores con menor sesgo tienden a ser más precisos, ya que en promedio sus valores están más cerca del verdadero valor de $\hat{p}_{n,\sigma}$.
 
 ### Pregunta 2: Intervalo de Confidencia
 
