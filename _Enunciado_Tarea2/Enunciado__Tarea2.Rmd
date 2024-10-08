@@ -105,7 +105,7 @@ calcular_estimador <- function(n, sigma) {
 }
 ```
 
-```{r, eval=FALSE}
+```{r}
 # sigma = 0
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -130,13 +130,13 @@ ggplot(resultados_0, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Sesgo para sigma = 0
 sesgo_estimador_sigma_0 <- mean(resultados_0$p_gorro) - 0.5
 print(sesgo_estimador_sigma_0)
 ```
 
-```{r, eval=FALSE}
+```{r}
 # sigma = 1
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -162,13 +162,13 @@ ggplot(resultados_1, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Sesgo para sigma = 1
 sesgo_estimador_sigma_1 <- mean(resultados_1$p_gorro) - 0.5
 print(sesgo_estimador_sigma_1)
 ```
 
-```{r, eval=FALSE}
+```{r}
 # sigma = 2
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -194,13 +194,13 @@ ggplot(resultados_2, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Sesgo para sigma = 2
 sesgo_estimador_sigma_2 <- mean(resultados_2$p_gorro) - 0.5
 print(sesgo_estimador_sigma_2)
 ```
 
-```{r, eval=FALSE}
+```{r}
 # sigma = 4
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -226,7 +226,7 @@ ggplot(resultados_4, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Sesgo para sigma = 4
 sesgo_estimador_sigma_4 <- mean(resultados_4$p_gorro) - 0.5
 print(sesgo_estimador_sigma_4)
@@ -265,7 +265,7 @@ Una forma de estimar la distribución de la media de una población es a través
 
 **Respuesta:**
 
-```{r, eval=FALSE}
+```{r}
 
 # Definimos tamaños de muestreo
 tamano_muestra = 100
@@ -364,7 +364,7 @@ df_bgl$contiene_media <- (df_bgl$ci_low <= mu_glucose & df_bgl$ci_high >= mu_glu
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Plot de Intervalos de confianza
 # Graficar una muestra aleatoria de 100 medias e intervalos de confianza para BMI
 set.seed(123)  # Para reproducibilidad
@@ -383,7 +383,7 @@ print(fp_bmi)
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Plot de Intervalos de confianza
 # Graficar una muestra aleatoria de 100 medias e intervalos de confianza para Glucose
 set.seed(123)  # Para reproducibilidad
@@ -438,7 +438,7 @@ ggplot(df_long, aes(x = index, y = Valor, color = Variable)) +
   theme(legend.title = element_blank())
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Plot de proporción de CI
 p_prop_bmi <- ggplot(df_bmi, aes(x = 1:n_muestras, y = prop_ci)) +
   geom_line(color = "blue") +
@@ -529,7 +529,7 @@ filled.contour(x = mu_m, y = sigma_m, z = likelihood_m, xlab = expression(mu),
                main = "Log Likelihood para la Media")
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Mediana
 ll_plot_mediana <- function(mu, sigma) {
   likelihood <- -sum(dnorm(medis, mean = mu, sd = sigma, log = TRUE))
@@ -643,7 +643,7 @@ Las actividades por realizar son las siguientes:
 
 **Respuesta:**
 
-```{r, eval=FALSE}
+```{r}
 # Bootstrap
 B <- 5000
 largo <- length(datos$HbA1c_level)
@@ -659,7 +659,7 @@ real_variance <- var(datos$HbA1c_level)
 real_variance
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Gráfico de puntos
 plot(output, main = "Varianzas obtenidas con Bootstrap",
      ylab = "Varianza", xlab = "Muestra de Bootstrap")
@@ -667,7 +667,7 @@ abline(h = real_variance, col = "red", lty = 2) # Línea roja para la varianza r
 legend("topright", legend = "Varianza real", col = "red", lty = 2)
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Histogrma
 hist(output, main = "Histograma de varianzas de Bootstrap",
      xlab = "Varianza", breaks = 30, col = "lightblue")
@@ -675,7 +675,7 @@ abline(v = real_variance, col = "red", lty = 2) # Línea roja para la varianza r
 legend("topright", legend = "Varianza real", col = "red", lty = 2)
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Obtenemos error e intervalos de confianze
 se_vars <- sd(output)
 z_a2 <- qnorm(1 - alpha/2)
@@ -721,7 +721,7 @@ ggplot() +
 
 Repita el proceso de la pregunta 4 para estimar el error e intervalos de confianza de los parámetros de la regresión ($m$ y $b$). ¿Qué indican los resultados de Bootstrap?¿Un valor bajo en el error significa que la regresión es buena?
 
-```{r, eval=FALSE}
+```{r}
 # Bootstrap
 B <- 500
 largo <- 1000
@@ -733,7 +733,7 @@ for (it in 1:B) {
 }
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Obtenemos error e intervalos de confianze
 se_m <- 
 z_a2 <-
@@ -748,7 +748,7 @@ sprintf('El intervalo de confidencia de 95%% de las varianzas es: (%.3f,%.3f)', 
 sprintf('El SE de la varianzas es: (%.3f)', se_m)
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Obtenemos error e intervalos de confianze
 se_b <- 
 z_a2 <-
