@@ -105,7 +105,7 @@ calcular_estimador <- function(n, sigma) {
 }
 ```
 
-```{r}
+```{r, eval=FALSE}
 # sigma = 0
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -117,7 +117,7 @@ for (n in x) {
   p_gorro <- calcular_estimador(n, 0)
   
   # Almacenar los resultados
-  resultados_0 <- rbind(resultados, data.frame(n = n, sigma = 0, p_gorro = p_gorro))
+  resultados_0 <- rbind(resultados_0, data.frame(n = n, sigma = 0, p_gorro = p_gorro))
 }
 
 # Graficar
@@ -130,7 +130,7 @@ ggplot(resultados_0, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Sesgo para sigma = 0
 sesgo_estimador_sigma_0 <- mean(resultados_0$p_gorro) - 0.5
 print(sesgo_estimador_sigma_0)
@@ -149,7 +149,7 @@ for (n in x) {
   p_gorro <- calcular_estimador(n, 1)
   
   # Almacenar los resultados
-  resultados_1 <- rbind(resultados, data.frame(n = n, sigma = 1, p_gorro = p_gorro))
+  resultados_1 <- rbind(resultados_1, data.frame(n = n, sigma = 1, p_gorro = p_gorro))
 }
 
 # Graficar
@@ -162,7 +162,7 @@ ggplot(resultados_1, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Sesgo para sigma = 1
 sesgo_estimador_sigma_1 <- mean(resultados_1$p_gorro) - 0.5
 print(sesgo_estimador_sigma_1)
@@ -194,7 +194,7 @@ ggplot(resultados_2, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Sesgo para sigma = 2
 sesgo_estimador_sigma_2 <- mean(resultados_2$p_gorro) - 0.5
 print(sesgo_estimador_sigma_2)
@@ -226,7 +226,7 @@ ggplot(resultados_4, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Sesgo para sigma = 4
 sesgo_estimador_sigma_4 <- mean(resultados_4$p_gorro) - 0.5
 print(sesgo_estimador_sigma_4)
@@ -269,7 +269,7 @@ Una forma de estimar la distribución de la media de una población es a través
 
 # Definimos tamaños de muestreo
 tamano_muestra = 100
-n_muestras = 10000
+n_muestras = 5000
 
 # Inicializamos estructuras necesarias
 list_mean_bmi = vector()
@@ -284,37 +284,180 @@ list_typeCI_bgl = vector()
 list_prop_bgl = vector()
 sucess_bgl = 0
 
-# Obtenemos la media y desviación estándar de cada columna
+#función para calcular desviación estándar
+sd.p <- function(x){sd(x)*sqrt((length(x)-1)/length(x))}
 
+# Obtenemos la media y desviación estándar de cada columna
+mu_bmi <- mean(datos$bmi)
+sd_bmi <- sd.p(datos$bmi)
+mu_bmi
+sd_bmi
+mu_glucose <- mean(datos$blood_glucose_level)
+sd_glucose <- sd.p(datos$blood_glucose_level)
+mu_glucose
+sd_glucose
+alpha <- 0.05
 
 # Sampling distribution, calculo del intervalo de confianza y proporción.
+
 for (i in 1:n_muestras) {
+  ### Para bmi ###
+  samples_bmi <- sample(datos$bmi, tamano_muestra, replace = TRUE)
+  sample_mu_bmi <- mean(samples_bmi)
+  sample_sd_bmi <- sd(samples_bmi)
+  
+  # Calculo de intervalo de confianza
+  se_bmi <- sample_sd_bmi/sqrt(tamano_muestra)
+  error_bmi <- qnorm(1-alpha/2) * se_bmi
+  left_bmi <- sample_mu_bmi - error_bmi
+  right_bmi <- sample_mu_bmi + error_bmi
+  
+  # Se guardan los resultados 
+  list_mean_bmi[i] <- sample_mu_bmi
+  list_interval_bmi <- c(list_interval_bmi, left_bmi, right_bmi)
+  list_prop_bmi[i] <- sucess_bmi/i
+  
+  # Se verifica si la media de la población se encuentra dentro del intérvalo de confianza
+  if (left_bmi <= mu_bmi && right_bmi >= mu_bmi) {
+    sucess_bmi <- sucess_bmi + 1
+  }
+  
+  
+  ### Para blood_glucose_level ###
+  samples_glucose <- sample(datos$blood_glucose_level, tamano_muestra, replace = TRUE)
+  sample_mu_glucose <- mean(samples_glucose)
+  sample_sd_glucose <- sd(samples_glucose)
+  
+  # Calculo de intervalo de confianza
+  se_glucose <- sample_sd_glucose / sqrt(tamano_muestra)
+  error_glucose <- qnorm(1 - alpha / 2) * se_glucose
+  left_glucose <- sample_mu_glucose - error_glucose
+  right_glucose <- sample_mu_glucose + error_glucose
+  
+  # Se guardan los resultados
+  list_mean_bgl[i] <- sample_mu_glucose
+  list_interval_bgl <- c(list_interval_bgl, left_glucose, right_glucose)
+  list_prop_bgl[i] <- sucess_bgl / i
+  
+  # Se verifica si la media de la población se encuentra dentro del intérvalo de confianza
+  if (left_glucose <= mu_glucose && right_glucose >= mu_glucose) {
+    sucess_bgl <- sucess_bgl + 1
+  }
   
 }
 
 # Generamos dataframes para plotear mas facilmente los datos.
 
+# Convertimos los vectores de intervalos en matrices de dos columnas
+list_interval_bmi_matrix <- matrix(list_interval_bmi, ncol = 2, byrow = TRUE)
+list_interval_bgl_matrix <- matrix(list_interval_bgl, ncol = 2, byrow = TRUE)
+
+# Generamos dataframes para graficar más fácilmente los datos
+df_bmi <- data.frame(media = list_mean_bmi, ci_low = list_interval_bmi_matrix[, 1], ci_high = list_interval_bmi_matrix[, 2], prop_ci = list_prop_bmi)
+df_bgl <- data.frame(media = list_mean_bgl, ci_low = list_interval_bgl_matrix[, 1], ci_high = list_interval_bgl_matrix[, 2], prop_ci = list_prop_bgl)
+
+# Verificar si el intervalo de confianza contiene la media de la población
+df_bmi$contiene_media <- (df_bmi$ci_low <= mu_bmi & df_bmi$ci_high >= mu_bmi)
+df_bgl$contiene_media <- (df_bgl$ci_low <= mu_glucose & df_bgl$ci_high >= mu_glucose)
+
+
 
 ```
 
 ```{r, eval=FALSE}
 # Plot de Intervalos de confianza
+# Graficar una muestra aleatoria de 100 medias e intervalos de confianza para BMI
+set.seed(123)  # Para reproducibilidad
+sample_indices_bmi <- sample(1:n_muestras, 100)  # Seleccionar 100 índices aleatorios
+sample_bmi <- df_bmi[sample_indices_bmi, ]
 
+# Crear gráfico para la muestra de BMI
+fp_bmi <- ggplot(data = sample_bmi, aes(x = factor(1:100), y = media, ymin = ci_low, ymax = ci_high)) +
+  geom_pointrange() + 
+  geom_hline(yintercept = mu_bmi, lty = 2) +  # Línea horizontal para la media poblacional
+  coord_flip() +  # Girar coordenadas
+  xlab("Muestra Aleatoria de Medias BMI") + ylab("Media (95% CI)") +
+  theme_bw() + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())  # Opcional: limpiar etiquetas del eje y
+print(fp_bmi)
 
 ```
 
 ```{r, eval=FALSE}
 # Plot de Intervalos de confianza
+# Graficar una muestra aleatoria de 100 medias e intervalos de confianza para Glucose
+set.seed(123)  # Para reproducibilidad
+sample_indices_bgl <- sample(1:n_muestras, 100)  # Seleccionar 100 índices aleatorios
+sample_bgl <- df_bgl[sample_indices_bgl, ]
 
+# Crear gráfico para la muestra de Glucose
+fp_bgl <- ggplot(data = sample_bgl, aes(x = factor(1:100), y = media, ymin = ci_low, ymax = ci_high)) +
+  geom_pointrange() + 
+  geom_hline(yintercept = mu_glucose, lty = 2) +  # Línea horizontal para la media poblacional
+  coord_flip() +  # Girar coordenadas
+  xlab("Muestra Aleatoria de Medias Glucose") + ylab("Media (95% CI)") +
+  theme_bw() + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())  # Opcional: limpiar etiquetas del eje y
+print(fp_bgl)
+```
 
+```{r}
+# Suponiendo que ya tenemos los datos de las muestras y las estadísticas
+# Normalizamos las variables
+normalizar <- function(x) {
+  return((x - mean(x)) / sd(x))
+}
+
+# Normalizamos las medias obtenidas de las muestras
+list_mean_bmi_normalized <- normalizar(list_mean_bmi)
+list_mean_bgl_normalized <- normalizar(list_mean_bgl)
+
+# Creamos un data frame para facilitar el plotting
+df_comparacion <- data.frame(
+  index = 1:n_muestras,
+  bmi = list_mean_bmi_normalized,
+  blood_glucose_level = list_mean_bgl_normalized
+)
+
+# Convertimos el data frame a formato largo sin reshape2
+df_long <- data.frame(
+  index = rep(df_comparacion$index, 2),
+  Variable = rep(c("BMI", "Blood Glucose Level"), each = n_muestras),
+  Valor = c(df_comparacion$bmi, df_comparacion$blood_glucose_level)
+)
+
+# Graficamos usando ggplot2
+library(ggplot2)
+
+ggplot(df_long, aes(x = index, y = Valor, color = Variable)) +
+  geom_line() +
+  labs(title = "Comparación de Estimaciones Normalizadas de BMI y Glucosa en Sangre",
+       x = "Índice de Muestra",
+       y = "Estimación Normalizada") +
+  theme_minimal() +
+  theme(legend.title = element_blank())
 ```
 
 ```{r, eval=FALSE}
 # Plot de proporción de CI
+p_prop_bmi <- ggplot(df_bmi, aes(x = 1:n_muestras, y = prop_ci)) +
+  geom_line(color = "blue") +
+  ggtitle("Proporción de Intervalos de Confianza que Contienen la Media - BMI") +
+  xlab("Iteraciones") + ylab("Proporción Acumulada") +
+  ylim(0, 1)
 
+p_prop_bgl <- ggplot(df_bgl, aes(x = 1:n_muestras, y = prop_ci)) +
+  geom_line(color = "green") +
+  ggtitle("Proporción de Intervalos de Confianza que Contienen la Media - Glucose") +
+  xlab("Iteraciones") + ylab("Proporción Acumulada") +
+  ylim(0, 1)
+
+# Mostrar las gráficas
+print(p_prop_bmi)
+print(p_prop_bgl)
 ```
 
-> Respuesta
+> Respuesta Es posible observar que la estimación para `blood_glucose_level` tiene mejores resultados ya que a simple vista se observan más valores cercanos a la media real, en cambio para `bmi` se observan valores mas dispersos y no tan cercanos a la media real por lo que se espera eque este estimador tenga un mayor error.
 
 ### Pregunta 3: Estimación de Máxima Verosimilitud
 
@@ -386,7 +529,7 @@ filled.contour(x = mu_m, y = sigma_m, z = likelihood_m, xlab = expression(mu),
                main = "Log Likelihood para la Media")
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Mediana
 ll_plot_mediana <- Vectorize(ll_plot_mediana)
 mu_d <- seq(27, 28, length.out = 10)
@@ -503,36 +646,53 @@ largo <- length(datos$HbA1c_level)
 output <- c()
 
 for (it in 1:B) {
-  
+  sample_data <- sample(datos$HbA1c_level, largo, replace = TRUE)
+  output[it] <- var(sample_data)
 }
+
+# Valor real de la varianza
+real_variance <- var(datos$HbA1c_level)
+real_variance
 ```
 
 ```{r, eval=FALSE}
 # Gráfico de puntos
-
+plot(output, main = "Varianzas obtenidas con Bootstrap",
+     ylab = "Varianza", xlab = "Muestra de Bootstrap")
+abline(h = real_variance, col = "red", lty = 2) # Línea roja para la varianza real
+legend("topright", legend = "Varianza real", col = "red", lty = 2)
 ```
 
 ```{r, eval=FALSE}
 # Histogrma
-
+hist(output, main = "Histograma de varianzas de Bootstrap",
+     xlab = "Varianza", breaks = 30, col = "lightblue")
+abline(v = real_variance, col = "red", lty = 2) # Línea roja para la varianza real
+legend("topright", legend = "Varianza real", col = "red", lty = 2)
 ```
 
 ```{r, eval=FALSE}
 # Obtenemos error e intervalos de confianze
-se_vars <-
-z_a2 <-
-alpha <-
+se_vars <- sd(output)
+z_a2 <- qnorm(1 - alpha/2)
+alpha <- 0.05
 
 # límite inferios
-l.CI <- 
+l.CI <- quantile(output, alpha/2)
 # límite superior
-u.CI <- 
+u.CI <- quantile(output, 1-alpha/2)
 
 sprintf('El intervalo de confidencia de 95%% de las varianzas es: (%.3f,%.3f)', l.CI , u.CI)
 sprintf('El SE de la varianzas es: (%.3f)', se_vars)
 ```
 
-> Respuesta
+> Respuesta:
+>
+> Para el gráfico de puntos para la varianza obtenida con boostrap se puede ver que los puntos están mayormente concentrados en la línea punteada roja, la cual corresponde a la varianza real. Además se nota que hay puntos outliers presentes pero en menor cantidad.
+>
+> Para el histrograma de la varianza se cómo claramante las varianzas obtenidas con Bootstrap tienen una distribución cercana a la normal centrada en el valor de la varianza real.
+>
+> Se puede inferir que al aplicar el método bootstrap para error estándar de la varianza, estos resultados tendrán una distribución cercana a la normal centrada en el valor de la varianza real, más aún en el histograma ya se puede apreciar cuál será un valor aproximado de el 95% de intervalo de confianza de la estimación.
 
 ### Pregunta 5: Bootstrap II
 
