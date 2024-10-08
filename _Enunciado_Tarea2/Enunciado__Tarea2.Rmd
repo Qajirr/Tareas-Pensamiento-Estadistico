@@ -388,6 +388,10 @@ filled.contour(x = mu_m, y = sigma_m, z = likelihood_m, xlab = expression(mu),
 
 ```{r}
 # Mediana
+ll_plot_mediana <- function(mu, sigma) {
+  likelihood <- -sum(dnorm(medis, mean = mu, sd = sigma, log = TRUE))
+  return(likelihood)
+}
 ll_plot_mediana <- Vectorize(ll_plot_mediana)
 mu_d <- seq(27, 28, length.out = 10)
 sigma_d <- seq(0.01, 1, length.out = 10)
