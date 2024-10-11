@@ -92,7 +92,7 @@ Elimine `eval=FALSE` para ejecutar las celdas.
 
 -   [ ] Considere una serie de variables aleatorias $X_i$ que siguen una distribución de Bernoulli de parámetro $p=0.5$ y un estimador de $p$ dado por $\hat{p}_{n, \sigma} = \epsilon_{\sigma} + \frac{1}{n} \displaystyle{\sum_{i=1}^{n}}X_{i}$ donde $\epsilon_{\sigma} \sim \mathcal{N}(0,\sigma)$. Para $\sigma = 0, 1, 2, 4$ grafique el valor de $\hat{p}_{n, \sigma}$ y comparelo con el valor verdadero. Calcule el sesgo del estimador para cada valor de $\sigma$.
 
-```{r}
+```{r, fig.width=12}
 # Función para generar los estimadores
 calcular_estimador <- function(n, sigma) {
   # Simulación de las X_i ~ Bernoulli(0.5)
@@ -105,7 +105,7 @@ calcular_estimador <- function(n, sigma) {
 }
 ```
 
-```{r}
+```{r, fig.width=12}
 # sigma = 0
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -130,13 +130,13 @@ ggplot(resultados_0, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, fig.width=12}
 # Sesgo para sigma = 0
 sesgo_estimador_sigma_0 <- mean(resultados_0$p_gorro) - 0.5
 print(sesgo_estimador_sigma_0)
 ```
 
-```{r}
+```{r, fig.width=12}
 # sigma = 1
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -162,13 +162,13 @@ ggplot(resultados_1, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, fig.width=12}
 # Sesgo para sigma = 1
 sesgo_estimador_sigma_1 <- mean(resultados_1$p_gorro) - 0.5
 print(sesgo_estimador_sigma_1)
 ```
 
-```{r}
+```{r, fig.width=12}
 # sigma = 2
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -194,13 +194,13 @@ ggplot(resultados_2, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, fig.width=12}
 # Sesgo para sigma = 2
 sesgo_estimador_sigma_2 <- mean(resultados_2$p_gorro) - 0.5
 print(sesgo_estimador_sigma_2)
 ```
 
-```{r}
+```{r, fig.width=12}
 # sigma = 4
 cte <- rep(0.5,1000)
 x <- 1:1000
@@ -226,7 +226,7 @@ ggplot(resultados_4, aes(x = n, y = p_gorro)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, fig.width=12}
 # Sesgo para sigma = 4
 sesgo_estimador_sigma_4 <- mean(resultados_4$p_gorro) - 0.5
 print(sesgo_estimador_sigma_4)
@@ -244,7 +244,7 @@ print(sesgo_estimador_sigma_4)
 
 En las preguntas 2, 3 y 4 deberá trabajar con el dataset `diabetes_prediction_dataset`.
 
-```{r}
+```{r, fig.width=12}
 datos <- read.csv("diabetes_prediction_dataset.csv", header = TRUE)
 head(datos)
 ```
@@ -265,7 +265,7 @@ Una forma de estimar la distribución de la media de una población es a través
 
 **Respuesta:**
 
-```{r}
+```{r, fig.width=12}
 
 # Definimos tamaños de muestreo
 tamano_muestra = 100
@@ -364,7 +364,7 @@ df_bgl$contiene_media <- (df_bgl$ci_low <= mu_glucose & df_bgl$ci_high >= mu_glu
 
 ```
 
-```{r}
+```{r, fig.width=12}
 # Plot de Intervalos de confianza
 # Graficar una muestra aleatoria de 100 medias e intervalos de confianza para BMI
 set.seed(123)  # Para reproducibilidad
@@ -383,7 +383,7 @@ print(fp_bmi)
 
 ```
 
-```{r}
+```{r, fig.width=12}
 # Plot de Intervalos de confianza
 # Graficar una muestra aleatoria de 100 medias e intervalos de confianza para Glucose
 set.seed(123)  # Para reproducibilidad
@@ -401,7 +401,7 @@ fp_bgl <- ggplot(data = sample_bgl, aes(x = factor(1:100), y = media, ymin = ci_
 print(fp_bgl)
 ```
 
-```{r}
+```{r, fig.width=12}
 # Suponiendo que ya tenemos los datos de las muestras y las estadísticas
 # Normalizamos las variables
 normalizar <- function(x) {
@@ -438,7 +438,7 @@ ggplot(df_long, aes(x = index, y = Valor, color = Variable)) +
   theme(legend.title = element_blank())
 ```
 
-```{r}
+```{r, fig.width=12}
 # Plot de proporción de CI
 p_prop_bmi <- ggplot(df_bmi, aes(x = 1:n_muestras, y = prop_ci)) +
   geom_line(color = "blue") +
@@ -473,7 +473,7 @@ Cabe señalar que el método de máxima verosimilitud deberá ser programado por
 
 **Respuesta**
 
-```{r}
+```{r, fig.width=12}
 # Obtenemos métricas de muestreo con repetición
 set.seed(99)
 means <- c()
@@ -491,7 +491,7 @@ for (i in 1:n_muestras) {
 resultados <- data.frame(media = means, mediana = medis)
 ```
 
-```{r}
+```{r, fig.width=12}
 # Histograma media
 ggplot(resultados, aes(x = media)) + 
   geom_histogram(binwidth = 0.1, fill = "blue", color = "white") + 
@@ -500,7 +500,7 @@ ggplot(resultados, aes(x = media)) +
 
 ```
 
-```{r}
+```{r, fig.width=12}
 # Histograma mediana
 ggplot(resultados, aes(x = mediana)) + 
   geom_histogram(binwidth = 0.1, fill = "green", color = "white") + 
@@ -508,7 +508,7 @@ ggplot(resultados, aes(x = mediana)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, fig.width=12}
 # Media
 # función log likelihood
 ll_plot <- function(mu, sigma) {
@@ -529,7 +529,7 @@ filled.contour(x = mu_m, y = sigma_m, z = likelihood_m, xlab = expression(mu),
                main = "Log Likelihood para la Media")
 ```
 
-```{r}
+```{r, fig.width=12}
 # Mediana
 ll_plot_mediana <- function(mu, sigma) {
   likelihood <- -sum(dnorm(medis, mean = mu, sd = sigma, log = TRUE))
@@ -546,7 +546,7 @@ filled.contour(x = mu_d, y = sigma_d, z = likelihood_d, xlab = expression(mu),
                main = "Log Likelihood para la Mediana")
 ```
 
-```{r}
+```{r, fig.width=12}
 likelihood_mean <- function(param) {
   # Definimos los parametros de entrada de la funcion
   mu <- param[1]
@@ -569,7 +569,7 @@ cat("Mu óptimo:", result_mean$par[1], "\n")
 cat("Sigma óptimo:", result_mean$par[2], "\n")
 ```
 
-```{r}
+```{r, fig.width=12}
 likelihood_med <- function(param) {
   # Definimos los parametros de entrada de la funcion
   mu <- param[1]
@@ -591,7 +591,7 @@ cat("Mu óptimo:", result_med$par[1], "\n")
 cat("Sigma óptimo:", result_med$par[2], "\n")
 ```
 
-```{r}
+```{r, fig.width=12}
 # Muestra de medias
 mu_media <- 27.32434
 sigma_media <- 0.663372
@@ -606,7 +606,7 @@ hist_media_simulada <- ggplot(df_muestras_media, aes(x = muestras_media)) +
 hist_media_simulada
 ```
 
-```{r}
+```{r, fig.width=12}
 # Muestra de medianas
 mu_mediana <- 27.30507
 sigma_mediana <- 0.1025046
@@ -643,7 +643,7 @@ Las actividades por realizar son las siguientes:
 
 **Respuesta:**
 
-```{r}
+```{r, fig.width=12}
 # Bootstrap
 B <- 5000
 largo <- length(datos$HbA1c_level)
@@ -659,7 +659,7 @@ real_variance <- var(datos$HbA1c_level)
 real_variance
 ```
 
-```{r}
+```{r, fig.width=12}
 # Gráfico de puntos
 plot(output, main = "Varianzas obtenidas con Bootstrap",
      ylab = "Varianza", xlab = "Muestra de Bootstrap")
@@ -667,7 +667,7 @@ abline(h = real_variance, col = "red", lty = 2) # Línea roja para la varianza r
 legend("topright", legend = "Varianza real", col = "red", lty = 2)
 ```
 
-```{r}
+```{r, fig.width=12}
 # Histogrma
 hist(output, main = "Histograma de varianzas de Bootstrap",
      xlab = "Varianza", breaks = 30, col = "lightblue")
@@ -675,7 +675,7 @@ abline(v = real_variance, col = "red", lty = 2) # Línea roja para la varianza r
 legend("topright", legend = "Varianza real", col = "red", lty = 2)
 ```
 
-```{r}
+```{r, fig.width=12}
 # Obtenemos error e intervalos de confianze
 se_vars <- sd(output)
 z_a2 <- qnorm(1 - alpha/2)
@@ -702,12 +702,12 @@ sprintf('El SE de la varianzas es: (%.3f)', se_vars)
 
 El siguiente código genera una regresión lineal de `bmi` con respecto a `age`, es decir, una función lineal de `age`, $y(age) = b + m\cdot age$, que pretende determinar el valor de `bmi`.
 
-```{r}
+```{r, fig.width=12}
 linearMod <- lm(bmi ~ age, data=datos)
 print(linearMod)
 ```
 
-```{r}
+```{r, fig.width=12}
 m <- linearMod$coefficients["age"]
 b <- linearMod$coefficients["(Intercept)"]
 
@@ -721,7 +721,7 @@ ggplot() +
 
 Repita el proceso de la pregunta 4 para estimar el error e intervalos de confianza de los parámetros de la regresión ($m$ y $b$). ¿Qué indican los resultados de Bootstrap?¿Un valor bajo en el error significa que la regresión es buena?
 
-```{r}
+```{r, fig.width=12}
 # Bootstrap
 B <- 500
 largo <- length(datos$bmi)
@@ -746,7 +746,7 @@ head(output_m)
 head(output_b)
 ```
 
-```{r}
+```{r, fig.width=12}
 # Obtenemos error e intervalos de confianze
 se_m <- sd(output_m)
 z_a2 <- qnorm(1 - alpha / 2)
@@ -761,7 +761,7 @@ sprintf('El intervalo de confidencia de 95%% de las varianzas es: (%.3f,%.3f)', 
 sprintf('El SE de la varianzas es: (%.3f)', se_m)
 ```
 
-```{r}
+```{r, fig.width=12}
 # Obtenemos error e intervalos de confianze
 se_b <- sd(output_m)
 z_a2 <- qnorm(1 - alpha / 2)
@@ -777,6 +777,10 @@ sprintf('El SE del sesgo es: (%.3f)', se_b)
 ```
 
 > Respuesta
+>
+> -   **Error estándar bajo**: Indica que los coeficientes son **consistentes** a través de las muestras, lo que sugiere un modelo de regresión **estable**.
+>
+> -   Un error bajo **no garantiza** que el modelo sea bueno en términos predictivos, pero lo hace fiable de que observada relaciones en los datos actuales.
 
  
 
