@@ -724,25 +724,38 @@ Repita el proceso de la pregunta 4 para estimar el error e intervalos de confian
 ```{r}
 # Bootstrap
 B <- 500
-largo <- 1000
-output_m <- c()
-output_b <- c()
-
+largo <- length(datos$bmi)
+output_m <- numeric(B)
+output_b <- numeric(B)
+set.seed(99)  # Fijar semilla para reproducibilidad
 for (it in 1:B) {
+  # Tomar una muestra con reemplazo de los datos
+  sample_indices <- sample(1:largo, largo, replace = TRUE)
+  sample_data <- datos[sample_indices, ]
   
+  # Ajustar la regresión lineal con la muestra
+  bootstrap_model <- lm(bmi ~ age, data = sample_data)
+  
+  # Guardar los coeficientes en las salidas correspondientes
+  output_m[it] <- bootstrap_model$coefficients["age"]
+  output_b[it] <- bootstrap_model$coefficients["(Intercept)"]
 }
+
+# Mostrar algunos resultados del bootstrap
+head(output_m)
+head(output_b)
 ```
 
 ```{r}
 # Obtenemos error e intervalos de confianze
-se_m <- 
-z_a2 <-
-alpha <-
+se_m <- sd(output_m)
+z_a2 <- qnorm(1 - alpha / 2)
+alpha <- 0.05
 
 # límite inferios
-l.CI <- 
+l.CI <- mean(output_m) - z_a2 * se_m
 # límite superior
-u.CI <- 
+u.CI <- mean(output_m) + z_a2 * se_m
 
 sprintf('El intervalo de confidencia de 95%% de las varianzas es: (%.3f,%.3f)', l.CI , u.CI)
 sprintf('El SE de la varianzas es: (%.3f)', se_m)
@@ -750,14 +763,14 @@ sprintf('El SE de la varianzas es: (%.3f)', se_m)
 
 ```{r}
 # Obtenemos error e intervalos de confianze
-se_b <- 
-z_a2 <-
-alpha <-
+se_b <- sd(output_m)
+z_a2 <- qnorm(1 - alpha / 2)
+alpha <- 0.05
 
 # límite inferios
-l.CI <- 
+l.CI <- mean(output_b) - z_a2 * se_b
 # límite superior
-u.CI <- 
+u.CI <- mean(output_b) + z_a2 * se_b
 
 sprintf('El intervalo de confidencia de 95%% de los sesgos es: (%.3f,%.3f)', l.CI , u.CI)
 sprintf('El SE del sesgo es: (%.3f)', se_b)
