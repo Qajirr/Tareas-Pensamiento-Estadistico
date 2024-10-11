@@ -727,7 +727,7 @@ B <- 500
 largo <- length(datos$bmi)
 output_m <- numeric(B)
 output_b <- numeric(B)
-set.seed(99)  # Fijar semilla para reproducibilidad
+
 for (it in 1:B) {
   # Tomar una muestra con reemplazo de los datos
   sample_indices <- sample(1:largo, largo, replace = TRUE)
