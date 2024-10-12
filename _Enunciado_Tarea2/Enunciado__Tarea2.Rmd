@@ -360,7 +360,8 @@ df_bgl <- data.frame(media = list_mean_bgl, ci_low = list_interval_bgl_matrix[, 
 df_bmi$contiene_media <- (df_bmi$ci_low <= mu_bmi & df_bmi$ci_high >= mu_bmi)
 df_bgl$contiene_media <- (df_bgl$ci_low <= mu_glucose & df_bgl$ci_high >= mu_glucose)
 
-
+sucess_bmi
+sucess_bgl
 
 ```
 
@@ -402,15 +403,16 @@ print(fp_bgl)
 ```
 
 ```{r, fig.width=12}
-# Suponiendo que ya tenemos los datos de las muestras y las estadísticas
-# Normalizamos las variables
+# Para comparar estimaciones de bmi y blood_glucose_level
+# Función que normaliza las variables a una escala entre 0 y 1
 normalizar <- function(x) {
-  return((x - mean(x)) / sd(x))
+  return((x - min(x)) / (max(x) - min(x)))
 }
 
 # Normalizamos las medias obtenidas de las muestras
 list_mean_bmi_normalized <- normalizar(list_mean_bmi)
 list_mean_bgl_normalized <- normalizar(list_mean_bgl)
+
 
 # Creamos un data frame para facilitar el plotting
 df_comparacion <- data.frame(
@@ -457,7 +459,9 @@ print(p_prop_bmi)
 print(p_prop_bgl)
 ```
 
-> Respuesta Es posible observar que la estimación para `blood_glucose_level` tiene mejores resultados ya que a simple vista se observan más valores cercanos a la media real, en cambio para `bmi` se observan valores mas dispersos y no tan cercanos a la media real por lo que se espera eque este estimador tenga un mayor error.
+> Respuesta:
+>
+> Es posible observar que la estimación para `blood_glucose_level` parece tener mejores resultados ya que a simple vista se observan más valores cercanos a la media real, en cambio para `bmi` se observan valores mas dispersos y no tan cercanos a la media real por lo que se espera que este estimador tenga un mayor error. Sin embargo, lo observado puede deberse a otras razones como que los datos de `blood_glucose_level` tienen una mayor dispersión de los datos y que por está razón se observan intérvalos de confianza más altos y por tanto pueda parecer que están más cercanos a la media real. Además es posible notar además al normalizar los estimadores de `blood_glucose_level` y `bmi` que los estimadores de blood_glucose_level son mayores que para `bmi`, lo cual puede deberse a la naturaleza de los datos ya que `blood_glucose_level` abarca datos en un mayor rango que `bmi`.
 
 ### Pregunta 3: Estimación de Máxima Verosimilitud
 
@@ -682,9 +686,9 @@ z_a2 <- qnorm(1 - alpha/2)
 alpha <- 0.05
 
 # límite inferios
-l.CI <- quantile(output, alpha/2)
+l.CI <- mean(output) - z_a2 * se_vars
 # límite superior
-u.CI <- quantile(output, 1-alpha/2)
+u.CI <- mean(output) + z_a2 * se_vars
 
 sprintf('El intervalo de confidencia de 95%% de las varianzas es: (%.3f,%.3f)', l.CI , u.CI)
 sprintf('El SE de la varianzas es: (%.3f)', se_vars)
@@ -724,7 +728,7 @@ Repita el proceso de la pregunta 4 para estimar el error e intervalos de confian
 ```{r, fig.width=12}
 # Bootstrap
 B <- 500
-largo <- length(datos$bmi)
+largo <- 1000
 output_m <- numeric(B)
 output_b <- numeric(B)
 
@@ -763,7 +767,7 @@ sprintf('El SE de la varianzas es: (%.3f)', se_m)
 
 ```{r, fig.width=12}
 # Obtenemos error e intervalos de confianze
-se_b <- sd(output_m)
+se_b <- sd(output_b)
 z_a2 <- qnorm(1 - alpha / 2)
 alpha <- 0.05
 
@@ -780,7 +784,7 @@ sprintf('El SE del sesgo es: (%.3f)', se_b)
 >
 > -   **Error estándar bajo**: Indica que los coeficientes son **consistentes** a través de las muestras, lo que sugiere un modelo de regresión **estable**.
 >
-> -   Un error bajo **no garantiza** que el modelo sea bueno en términos predictivos, pero lo hace fiable de que observada relaciones en los datos actuales.
+> -   Un error bajo **no garantiza** que el modelo sea bueno en términos predictivos, pero lo hace fiable de que observa relaciones en los datos actuales.
 
  
 
