@@ -329,7 +329,7 @@ head(df)
 income_graduation <- df$Income[df$Education == 'Graduation']
 income_master <- df$Income[df$Education == 'Master']
 income_phd <- df$Income[df$Education == 'PhD']
-# Remueve los valores NA de cada vector
+# Remover los valores NA de cada vector
 income_graduation <- income_graduation[!is.na(income_graduation)]
 income_master <- income_master[!is.na(income_master)]
 income_phd <- income_phd[!is.na(income_phd)]
@@ -377,8 +377,8 @@ z_test_multiple <- function(data_list, sigma_list, alpha=0.05) {
 
 ```{r}
 # Definir parámetros conocidos
-mu_Graduation <- 52000  # Valor para contrastar
-sigma_Graduation <- 28180  # Desviación estándar estimada para Graduation
+mu_Graduation <- 52000
+sigma_Graduation <- 28180
 
 # Realizar el test one-sided (menor y mayor) y two-sided
 result_one_sided_menor <- z_test(data1=income_graduation, sigma1=sigma_Graduation, mu.Ha=mu_Graduation, test.type='menor')
@@ -390,6 +390,8 @@ cat("One-sided test (menor): Z-score =", result_one_sided_menor$z_score, ", p-va
 cat("One-sided test (mayor): Z-score =", result_one_sided_mayor$z_score, ", p-value =", result_one_sided_mayor$p_value, "\n")
 cat("Two-sided test: Z-score =", result_two_sided$z_score, ", p-value =", result_two_sided$p_value, "\n")
 ```
+
+Dado el nivel de significancia $(\alpha = 0.05)$, los valores p de las pruebas son mayores a $\alpha$ en todos los casos. Esto indica que no hay suficiente evidencia para rechazar la hipótesis nula, por lo que podemos concluir que la media de ingresos para el grupo "Graduation" es similar a 52,000.
 
 ```{r}
 # Desviaciones estándar de cada grupo
@@ -404,12 +406,18 @@ result_multiple_tests <- z_test_multiple(
   alpha = 0.05
 )
 
-# Mostrar resultados de los múltiples tests con corrección de Bonferroni
+# Mostrar resultados
 for (res in result_multiple_tests) {
   cat("Comparación entre grupo", res$data1, "y grupo", res$data2, ": Z-score =", res$z_score, ", p-value ajustado =", res$p_value, "\n")
 }
-
 ```
+
+-    Comparación entre Graduation y Master: $p\text{-value ajustado} = 1.00$ (sin evidencia significativa de diferencia)
+
+-   Comparación entre Graduation y PhD: $p\text{-value ajustado} = 0.0201$ (evidencia significativa de diferencia)
+
+-   Comparación entre Master y PhD: $p\text{-value ajustado} = 0.0671$ (sin evidencia significativa de diferencia al nivel $\alpha = 0.05$
+    Usando un $\alpha = 0.05$ ajustado para las comparaciones múltiples, la única comparación significativa es entre Graduation y PhD. Esto sugiere una diferencia estadísticamente significativa en los ingresos entre personas con estos dos niveles académicos. Las otras comparaciones no muestran diferencias significativas en ingresos, ya que los $p\text{-values ajustados}$ son mayores que $\alpha$.
 
 ### Pregunta 3: Testeando multiples hipotesis y Bonferroni Correction
 
