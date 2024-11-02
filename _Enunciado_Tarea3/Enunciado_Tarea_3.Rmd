@@ -325,73 +325,90 @@ $$\sigma_{Graduation} = 28180$$ $$\sigma_{Master} = 20160$$ $$\sigma_{PhD} = 206
 ```{r}
 df = read.csv('marketing_campaign.csv', sep='\t')
 head(df)
+# Filtrar ingresos por grado académico
+income_graduation <- df$Income[df$Education == 'Graduation']
+income_master <- df$Income[df$Education == 'Master']
+income_phd <- df$Income[df$Education == 'PhD']
+# Remueve los valores NA de cada vector
+income_graduation <- income_graduation[!is.na(income_graduation)]
+income_master <- income_master[!is.na(income_master)]
+income_phd <- income_phd[!is.na(income_phd)]
 
-# Implementación de Z-test one-sided y two-sided
-# Puede utilizar este esqueleto
-z_test <- function(data1=NULL, sigma1=0.5, data2=NULL, sigma2=0.5, 
-                   mu.Ha=0, test.type = c('one-sided','two-sided'),
-                   verbose=TRUE){
+# Implementación de Z-test
+z_test <- function(data1, sigma1, mu.Ha=0, data2=NULL, sigma2=NULL, test.type='two-sided') {
+  n1 <- length(data1)
+  mean1 <- mean(data1)
   
-  if(length(test.type)>=2){
-    print("Por favor escoge un tipo de Test: ´one-sided´ o ´two-sided´ ")
-    return()
+  if (is.null(data2)) { # One-sample Z-test
+    z <- (mean1 - mu.Ha) / (sigma1 / sqrt(n1))
+    if (test.type == 'menor') p <- pnorm(z)
+    else if (test.type == 'mayor') p <- 1 - pnorm(z)
+    else p <- 2 * (1 - pnorm(abs(z)))
+    
+  } else { # Two-sample Z-test
+    n2 <- length(data2)
+    mean2 <- mean(data2)
+    z <- (mean2 - mean1 - mu.Ha) / sqrt((sigma1^2 / n1) + (sigma2^2 / n2))
+    if (test.type == 'menor') p <- pnorm(z)
+    else if (test.type == 'mayor') p <- 1 - pnorm(z)
+    else p <- 2 * (1 - pnorm(abs(z)))
   }
-  else if(length(test.type)==1 && !(test.type %in% c('menor','mayor','two-sided'))){
-    print("Por favor escoge un tipo de Test: ´menor´, ´mayor´ o ´two-sided´")
-    return()
-  }
-  else if(is.null(data2)){
-    
-    # P-value
-    if(test.type=='menor'){
-
-    }
-    else if(test.type=='mayor'){
-
-    }
-    else if(test.type=='two-sided'){
-
-    }
-    
-    # Texto de Salida
-    if(verbose){
-      cat("\tOne-sample Z-Test:\n\nData analizada:",
-                      deparse(substitute(data1)), "\nZ=", Z_score, 
-                      "P-value=", p_value, "\n\n",sep=" ")
-    }
-    
-    return(p_value)
-    
-  }
-  else if(!is.null(data2)){
-    # Hypothesis test
-    
-    # p-value
-    if(test.type=='menor'){
-      p_value = ...
-    }
-    else if(test.type=='mayor'){
-      p_value = ...
-    }
-    else if(test.type=='two-sided'){
-      p_value = ...
-    }
-    # Texto de Salida
-    if(verbose){
-      cat("\tTwo-sample Z-Test:\n\nData analizada:",
-                      deparse(substitute(data1)),"y",
-                      deparse(substitute(data2)), "\nZ=", 
-                      Z_score, "P-value=", p_value, "\n\n",sep=" ")
-    }
   
-    return(p_value)
-  }
+  return(list(z_score=z, p_value=p))
 }
 ```
 
 ```{r}
-z.test.multiple_testing <- function(){
+z_test_multiple <- function(data_list, sigma_list, alpha=0.05) {
+  results <- list()
+  m <- length(data_list) * (length(data_list) - 1) / 2  # Número de tests
+  index <- 1
+  for (i in 1:(length(data_list) - 1)) {
+    for (j in (i + 1):length(data_list)) {
+      test_result <- z_test(data_list[[i]], sigma_list[i], data2=data_list[[j]], sigma2=sigma_list[j])
+      test_result$p_value <- min(test_result$p_value * m, 1) # Corrección de Bonferroni
+      results[[index]] <- list(data1=i, data2=j, z_score=test_result$z_score, p_value=test_result$p_value)
+      index <- index + 1
+    }
+  }
+  return(results)
 }
+```
+
+```{r}
+# Definir parámetros conocidos
+mu_Graduation <- 52000  # Valor para contrastar
+sigma_Graduation <- 28180  # Desviación estándar estimada para Graduation
+
+# Realizar el test one-sided (menor y mayor) y two-sided
+result_one_sided_menor <- z_test(data1=income_graduation, sigma1=sigma_Graduation, mu.Ha=mu_Graduation, test.type='menor')
+result_one_sided_mayor <- z_test(data1=income_graduation, sigma1=sigma_Graduation, mu.Ha=mu_Graduation, test.type='mayor')
+result_two_sided <- z_test(data1=income_graduation, sigma1=sigma_Graduation, mu.Ha=mu_Graduation, test.type='two-sided')
+
+# Mostrar resultados
+cat("One-sided test (menor): Z-score =", result_one_sided_menor$z_score, ", p-value =", result_one_sided_menor$p_value, "\n")
+cat("One-sided test (mayor): Z-score =", result_one_sided_mayor$z_score, ", p-value =", result_one_sided_mayor$p_value, "\n")
+cat("Two-sided test: Z-score =", result_two_sided$z_score, ", p-value =", result_two_sided$p_value, "\n")
+```
+
+```{r}
+# Desviaciones estándar de cada grupo
+sigma_Graduation <- 28180
+sigma_Master <- 20160
+sigma_PhD <- 20615
+
+# Realizar múltiples tests usando la función con corrección de Bonferroni
+result_multiple_tests <- z_test_multiple(
+  data_list = list(income_graduation, income_master, income_phd),
+  sigma_list = c(sigma_Graduation, sigma_Master, sigma_PhD),
+  alpha = 0.05
+)
+
+# Mostrar resultados de los múltiples tests con corrección de Bonferroni
+for (res in result_multiple_tests) {
+  cat("Comparación entre grupo", res$data1, "y grupo", res$data2, ": Z-score =", res$z_score, ", p-value ajustado =", res$p_value, "\n")
+}
+
 ```
 
 ### Pregunta 3: Testeando multiples hipotesis y Bonferroni Correction
