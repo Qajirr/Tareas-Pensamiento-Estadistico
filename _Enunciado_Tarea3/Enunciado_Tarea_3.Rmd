@@ -170,7 +170,7 @@ A su vez, en estas fuentes se incluyen las visualizaciones esperadas de las dist
 
 **Respuesta**
 
-```{r}
+```{r, fig.width=12}
 # Power Function, El esqueleto posee como ejemplo como obtener la potencia de un z-test one-sample.
 # Si utiliza este esqueleto deberá comentar la función que cumple cada una de las partes entregadas
 power.z.test <- function(n1=NULL, sigma1=0.5, 
@@ -412,12 +412,11 @@ for (res in result_multiple_tests) {
 }
 ```
 
--    Comparación entre Graduation y Master: $p\text{-value ajustado} = 1.00$ (sin evidencia significativa de diferencia)
+-   Comparación entre Graduation y Master: $p\text{-value ajustado} = 1.00$ (sin evidencia significativa de diferencia)
 
 -   Comparación entre Graduation y PhD: $p\text{-value ajustado} = 0.0201$ (evidencia significativa de diferencia)
 
--   Comparación entre Master y PhD: $p\text{-value ajustado} = 0.0671$ (sin evidencia significativa de diferencia al nivel $\alpha = 0.05$
-    Usando un $\alpha = 0.05$ ajustado para las comparaciones múltiples, la única comparación significativa es entre Graduation y PhD. Esto sugiere una diferencia estadísticamente significativa en los ingresos entre personas con estos dos niveles académicos. Las otras comparaciones no muestran diferencias significativas en ingresos, ya que los $p\text{-values ajustados}$ son mayores que $\alpha$.
+-   Comparación entre Master y PhD: $p\text{-value ajustado} = 0.0671$ (sin evidencia significativa de diferencia al nivel $\alpha = 0.05$ Usando un $\alpha = 0.05$ ajustado para las comparaciones múltiples, la única comparación significativa es entre Graduation y PhD. Esto sugiere una diferencia estadísticamente significativa en los ingresos entre personas con estos dos niveles académicos. Las otras comparaciones no muestran diferencias significativas en ingresos, ya que los $p\text{-values ajustados}$ son mayores que $\alpha$.
 
 ### Pregunta 3: Testeando multiples hipotesis y Bonferroni Correction
 
@@ -442,23 +441,104 @@ head(data)
 
 ```{r}
 
+### Función probEmpirica sin utilizar el método de Bonferroni correction ###
 probEmpirica <- function(alpha,m){
   n <- 10000 # Cantidad de veces que se va a repetir el experimento para estimar la probabilidad, pueden cambiar este valor si lo desean
   
-
-  res <-... #Resultados de los experimentos
+  res <- rbinom(n, m, alpha) #Resultados de los experimentos
   
-  # Puede agergar todo el codigo que estime conveniente para calcular la probabilidad empirica
-  ...
-  ...
-  #
-  prob <-... # Probabilidad empirica
+  prob <- mean(res > 0) # Probabilidad empirica
   
   return(prob)
   
 }
 
+
+#Se comprueba que con un nivel de significancia $\alpha = 0.05$ y $20$ test ya se alcanza una probabilidad de $64\%$ de tener resultados significantes por azar
+alpha <- 0.05
+m <- 20
+prob <- probEmpirica(alpha, m)
+print(prob)
+
+
+#Se calcula teóricamente 
+
+prob_teo <- 1 - (1 - alpha)^m
+prob_teo
 ```
+
+Graficando la la probabilidad empírica y real variando el valor de $m$
+
+```{r, fig.width=12}
+# Parámetros
+alpha <- 0.05
+m_values <- 10:100 # Valores de m a evaluar
+
+# Inicializamos vectores para almacenar resultados
+prob_empirica <- numeric(length(m_values))
+prob_teorica <- numeric(length(m_values))
+
+# Calculamos probabilidades empíricas y teóricas para cada valor de m
+for (i in seq_along(m_values)) {
+  m <- m_values[i]
+  prob_empirica[i] <- probEmpirica(alpha, m)
+  prob_teorica[i] <- 1 - (1 - alpha)^m
+}
+
+# Graficamos resultados
+plot(m_values, prob_teorica, type = "l", col = "blue", lwd = 2,
+     ylab = "Probabilidad de obtener al menos un resultado significativo",
+     xlab = "Cantidad de experimentos (m)", ylim = c(0, 1))
+lines(m_values, prob_empirica, col = "red", lwd = 2)
+legend("bottomright", legend = c("Probabilidad Teórica", "Probabilidad Empírica"),
+       col = c("blue", "red"), lwd = 2)
+```
+
+Ambos resultados son bastante parecidos, cuando la cantidad de experimentos es muy grande ambas probabilidades tienden a acercarse al 100%. Al cambiar el valor de m se espera un cambió en la "velocidad" en que la curva se acerca al 1, notando que para valores menores de alpha se acercará más lentamente al contrio de si es para valores mayores. Al ser los valores bastante parecidos se puede asumir que este método es bastante eficaz en obtener valores significativos solo por azar.
+
+Corrigiendo la Probabilidad Empírica con el método de **Bonferroni correction:**
+
+```{r, fig.width=12}
+### Función probEmpirica utilizando el método de Bonferroni correction ###
+probEmpiricaBonferroni <- function(alpha,m){
+  n <- 10000 # Cantidad de veces que se va a repetir el experimento para estimar la probabilidad, pueden cambiar este valor si lo desean
+  
+  res <- rbinom(n, m, alpha/m) #Resultados de los experimentos
+  
+  prob <- mean(res > 0)*m # Probabilidad empirica
+  
+  return(prob)
+  
+}
+
+
+# Parámetros
+alpha <- 0.05
+m_values <- 1:100 # Valores de m a evaluar
+
+# Inicializamos vectores para almacenar resultados
+prob_empirica <- numeric(length(m_values))
+prob_teorica <- numeric(length(m_values))
+
+# Calculamos probabilidades empíricas y teóricas para cada valor de m
+for (i in seq_along(m_values)) {
+  m <- m_values[i]
+  prob_empirica[i] <- probEmpiricaBonferroni(alpha, m)
+  prob_teorica[i] <- 1 - (1 - alpha)^m
+}
+
+# Graficamos resultados
+plot(m_values, prob_teorica, type = "l", col = "blue", lwd = 2,
+     ylab = "Probabilidad de obtener al menos un resultado significativo",
+     xlab = "Cantidad de experimentos (m)", ylim = c(0, 1))
+lines(m_values, prob_empirica, col = "red", lwd = 2)
+legend("bottomright", legend = c("Probabilidad Teórica", "Probabilidad Empírica"),
+       col = c("blue", "red"), lwd = 2)
+```
+
+Las probabilidades aumentan significativamente dando como resultado que las probabilidades de rechazar por error se mantengan bajas, si el m es muy alto significaría que las hipotesis nunca serían rechazadas habiendo una inconsistencia en el propósito de realizar estos múltiples test llevando a falsos negativos.
+
+Con respecto a lo observado en ratones.csv, es posible apreciar que originalmente sin Bonferroni se hubiera aceptado al grupo NK602-13%, sin embargo con Bonferroni este se hubiera rechazado al igual que el resto de los grupos. Esto implica que se ha rechazado al único resultado significativo que se había encontrado originalmente, aumentando así el caso de los falsos negativos.
 
 ------------------------------------------------------------------------
 
@@ -492,12 +572,130 @@ b)  Estudie si el modelo multivariable posee mejor desempeño que el modelo simp
 
 **Nota:** No esta permitido utilizar comandos que obtengan los valores solicitados directamente a menos que se le permita en la pregunta.
 
+PARTE I
+
 ```{r}
-lm_reg <- function(X, Y){
-  
-  
-}
+# Ajustes al dataset
+dataset <- read.csv("insurance.csv", header = TRUE) 
+dataset$sex <- ifelse(dataset$sex == "female", 1, 0)
+dataset$smoker <- ifelse(dataset$smoker == "yes", 1, 0)
+dataset$region <- NULL
+
+data_fumadores <- dataset[dataset$smoker == "1",]
+data_notfumadores <- dataset[dataset$smoker == "0",]
+
+data_fumadores$smoker <- NULL 
+data_notfumadores$smoker <- NULL 
+
+cor(data_fumadores)
+cor(data_notfumadores)
 ```
+
+La variable escogida para los fumadores es `bmi` y para los no-fumadores es `age` , esto ya que respectivamente son las variables con correlaciones positivas más altas respecto a `charges.`
+
+A continuación se programará el modelo lineal simple para los fumadores y no fumadores:
+
+```{r, fig.width=12}
+# Calculando beta 0 y beta 1 para fumadores y no fumadores
+
+# Función para calcular los betas
+calcular_betas<- function(x, y) {
+  beta_1 <- sum((x - mean(x)) * (y - mean(y))) / sum((x - mean(x))^2)
+  beta_0 <- mean(y) - beta_1 * mean(x)
+  list(beta0 = beta_0, beta1 = beta_1)
+}
+
+# Para fumadores
+beta0_fumadores = calcular_betas(data_fumadores$bmi, data_fumadores$charges)$beta0
+beta1_fumadores = calcular_betas(data_fumadores$bmi, data_fumadores$charges)$beta1
+
+# Para no fumadores
+beta0_nofumadores = calcular_betas(data_notfumadores$age, data_notfumadores$charges)$beta0
+beta1_nofumadores = calcular_betas(data_notfumadores$age, data_notfumadores$charges)$beta1
+
+# Modelos lineales resultantes
+
+# Para fumadores
+charges_fumadores <- beta0_fumadores + beta1_fumadores * data_fumadores$bmi
+
+#Para no fumadores
+charges_nofumadores <- beta0_nofumadores + beta1_nofumadores * data_notfumadores$age
+
+
+#Calculo de R2 y R2 ajustado
+
+# Para fumadores
+# R2
+SST_fumadores <- sum((data_fumadores$charges - mean(data_fumadores$charges))^2)
+SSE_fumadores <- sum((data_fumadores$charges - charges_fumadores)^2)
+R2_fumadores <- 1 - (SSE_fumadores / SST_fumadores)
+R2_fumadores
+# R2 ajustado
+n_fumadores <- length(data_fumadores$charges)
+m <- 1  
+R2_ajustado_fumadores <- 1 - ((1 - R2_fumadores) * (n_fumadores - 1) / (n_fumadores - m - 1))
+R2_ajustado_fumadores
+
+# Para no fumadores
+# R2
+SST_nofumadores <- sum((data_notfumadores$charges - mean(data_notfumadores$charges))^2)
+SSE_nofumadores <- sum((data_notfumadores$charges - charges_nofumadores)^2)
+R2_nofumadores <- 1 - (SSE_nofumadores / SST_nofumadores)
+R2_nofumadores
+# R2 ajustado
+n_nofumadores <- length(data_notfumadores$charges)
+m <- 1  
+R2_ajustado_nofumadores <- 1 - ((1 - R2_nofumadores) * (n_nofumadores - 1) / (n_nofumadores - m - 1))
+R2_ajustado_nofumadores
+
+# GRáfico para fumadores
+plot(data_fumadores$bmi, data_fumadores$charges, main = "Modelo Lineal Simple para Fumadores",
+     xlab = "bmi", ylab = "Charges", pch = 19)
+abline(a = beta0_fumadores, b = beta1_fumadores, col = "blue", lwd = 2)
+
+
+# GRáfico para no fumadores
+plot(data_notfumadores$age, data_notfumadores$charges, main = "Modelo Lineal Simple para No Fumadores",
+     xlab = "age", ylab = "Charges", pch = 19)
+abline(a = beta0_nofumadores, b = beta1_nofumadores, col = "blue", lwd = 2)
+```
+
+PARTE II
+
+Las variables escogidas para los fumadores son `bmi y age` , para los no-fumadores son `age` y `children`, esto ya que respectivamente son las variables con correlaciones positivas más altas respecto a `charges.`
+
+```{r}
+
+# Para fumadores
+# Preparar la matriz X y el vector y 
+X_fumadores <- as.matrix(cbind(1, data_fumadores$bmi, data_fumadores$age)) 
+Y_fumadores <- data_fumadores$charges
+
+# Calcular los coeficientes de beta usando (X'X)^(-1)X'y
+beta_fumadores <- solve(t(X_fumadores) %*% X_fumadores) %*% t(X_fumadores) %*% Y_fumadores
+beta_fumadores #Valores de la intersección y coeficientes de las variables independientes
+
+# Para no fumadores
+# Preparar la matriz X y el vector y 
+X_nofumadores <- as.matrix(cbind(1, data_notfumadores$bmi, data_notfumadores$children)) 
+Y_nofumadores <- data_notfumadores$charges
+
+# Calcular los coeficientes de beta usando (X'X)^(-1)X'y
+beta_nofumadores <- solve(t(X_nofumadores) %*% X_nofumadores) %*% t(X_nofumadores) %*% Y_nofumadores
+beta_nofumadores #Valores de la intersección y coeficientes de las variables independientes
+
+reg2 <- lm(charges~bmi+age, data_fumadores)
+summary(reg2)
+
+reg3 <- lm(charges~bmi+children, data_notfumadores)
+summary(reg3)
+```
+
+Para realizar el análisis de qué modelos son mejores para la predicción de nuevas entradas se comparán los valores del \$R\^2-ajustado\$ el cual nos indica la "penalización" que habrá al predecir nuevas entradas.
+
+En el caso del Modelo de la Parte I se puede ver que su valor de \$R\^2-ajustado\$ de apróximadamente 0.6491 para el caso de los fumadores es menor que para el Modelo de la Parte II con valor \~0.7514, por lo que para los fumadores se puede decir que el modelo lineal multivariable posee un mejor desempeño que el simple. En cambio, para el caso de los no fumadores ocurre lo contrario, presentado un valor de \$R\^2-ajustado\$ \~0.3937 para el modelo lineal siemple siendo mayor que el valor \~0.02409 del modelo lineal multivariable, por lo que en este caso es mucho más recomendable utilizar el modelo lineal simple para la predicción de nuevas entradas.
+
+}
 
  
 
