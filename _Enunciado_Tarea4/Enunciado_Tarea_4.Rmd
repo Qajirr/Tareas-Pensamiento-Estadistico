@@ -408,6 +408,12 @@ plt
 
 **Respuesta:**
 
+### Observaciones sobre la distribución posterior
+
+1.  **Zona de máxima densidad**: La mayor probabilidad para los parámetros $\mu$ (media) y $\sigma$ (desviación estándar) se concentra en un área definida. Esto indica que la estimación conjunta de los parámetros es consistente con valores específicos, sugiriendo un comportamiento estable en la media y la desviación estándar.
+
+2.  **Forma de la distribución**: La alta concentración de probabilidad en una región angosta sugiere baja incertidumbre sobre la estimación de $\mu$ dentro del rango observado. La distribución está sesgada hacia un intervalo reducido para $\sigma$, con la mayor densidad posterior centrada en valores cercanos a 0.75-1, lo que coincide con la creencia previa de que $\sigma$ se encuentra en el rango $[0.5, 1]$.
+
 -   [ ] A continuación se presenta un código que permite realizara la distribución dada por sampling from grid approximation ¿Para que sirve este proceso? ¿Que puede deducir del gráfico?
 
 ```{r}
@@ -429,6 +435,10 @@ dens(df)
 ```
 
 **Respuesta:**
+
+El proceso de *sampling from grid approximation* sirve para estudiar cómo se distribuyen los valores de los parámetros $\mu$ y $\sigma$ en la posterior. En el gráfico, se pueden observar las regiones de mayor densidad de puntos, lo cual sugiere que los valores de $\mu$ y $\sigma$ más consistentes con los datos se concentran en esas áreas. El gráfico muestra una mayor densidad en la parte baja del rango de $\sigma$ (entre 0.55 y 0.7), esto confirmaría la prior que propusimos, que da mayor probabilidad a esa región. Además, la forma y dispersión de los puntos indican la certeza o incertidumbre en las estimaciones de los parámetros.
+
+En cuanto a la distribución de la media ($\mu$), podemos observar que los valores más probables se encuentran en la región central del gráfico, donde se concentra la mayor densidad de puntos. Esto sugiere que la media estimada se encuentra dentro del rango 5.9 y 6.2, el cual indica la consistencia de los datos con los valores propuestos en la prior. Los puntos cercanos al centro de la grilla reflejan una mayor certeza sobre el valor de $\mu$, mientras que aquellos más alejados de este centro reflejan mayor incertidumbre.
 
 ------------------------------------------------------------------------
 
