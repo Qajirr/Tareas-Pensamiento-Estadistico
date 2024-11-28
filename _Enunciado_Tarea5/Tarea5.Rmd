@@ -76,11 +76,62 @@ Explique cómo cross-validation, criterios de información y regularización ayu
 
 > Respuesta
 
+**1. Cross-Validation:**\
+Se dividen los datos en un conjunto de entrenamiento y validación para evaluar el desempeño del modelo con datos no vistos. Esto para: Detectar **overfitting**, ya que si un modelo que se ajusta demasiado al conjunto de entrenamiento tendrá un mal desempeño en los datos de validación.\
+Tambien identifica **underfitting** si el modelo no captura los patrones en ninguno de los conjuntos.
+
+------------------------------------------------------------------------
+
+**2. Criterios de Información :\
+**Como el **Akaike Information Criterion**, evalúan el balance entre el ajuste del modelo y su complejidad: - Penalizan la complejidad excesiva (número de parámetros), ayudando a evitar **overfitting**. - Favorecen modelos con un buen ajuste pero simples, lo que reduce el riesgo de **underfitting**.
+
+Por ejemplo, un modelo con menor AIC es preferido porque logra un equilibrio óptimo entre ajuste y parsimonia.
+
+------------------------------------------------------------------------
+
+**3. Regularización:**\
+Incluye términos de penalización en la función objetivo del modelo, como en Ridge Regression. Esto controla los coeficientes del modelo:\
+- Reduce **overfitting** al penalizar coeficientes grandes, que podrían ajustarse demasiado a ruido en los datos.\
+- Evita **underfitting** permitiendo una flexibilidad adecuada para capturar patrones relevantes, especialmente si se optimizan hiperparámetros.
+
+------------------------------------------------------------------------
+
 ### Pregunta 2: Directed Graphical Models
 
 Diseñe una DAG para un problema causal inventado por usted de al menos 5 nodos (puede basarse en el ejemplo de Eugene Charniak) usando Dagitty y considere que la DAG tenga al menos: una chain, un fork y un collider. Muestre con dagitty todas las independencias condicionales de su DAG. Explique las independencias usando las reglas de d-separación.
 
 > Respuesta
+
+```{r}
+# Cargar la librería
+library(dagitty)
+library(ggdag)
+library(ggplot2)
+
+# Crear la DAG
+dag <- dagitty("
+dag {
+  Inteligencia -> Educacion -> Ingresos
+  Inteligencia -> Oportunidades -> Ingresos
+  Esfuerzo -> Ingresos
+}
+")
+
+ggdag::ggdag(dag) + 
+  ggtitle("DAG") +
+  theme_dark()
+
+```
+
+1.  Educación ⊥ Esfuerzo \| Ingresos:
+    -   Ingresos es un collider en el camino Educación -\> Ingresos \<- Esfuerzo.
+    -   Condicionar en Ingresos bloquea la dependencia entre Educación y Esfuerzo.
+2.  Oportunidades ⊥ Educación \| Inteligencia:
+    -   Inteligencia es un nodo de fork en el camino Educación \<- Inteligencia -\> Oportunidades.
+    -   Condicionar en Inteligencia bloquea el flujo de información entre Oportunidades y Educación.
+3.  Oportunidades ⊥ Esfuerzo \| Ingresos, Inteligencia:
+    -   Condicionar en Inteligencia bloquea la influencia desde Oportunidades a Ingresos.
+    -   Además, Ingresos como collider bloquea el camino hacia Esfuerzo.
 
 # Segunda Parte: Elaboración de Código<a name="id5"></a>
 
