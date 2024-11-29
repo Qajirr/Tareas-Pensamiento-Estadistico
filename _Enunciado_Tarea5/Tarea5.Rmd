@@ -102,7 +102,7 @@ Diseñe una DAG para un problema causal inventado por usted de al menos 5 nodos 
 
 > Respuesta
 
-```{r}
+```{r, fig.width=12}
 # Cargar la librería
 library(dagitty)
 library(ggdag)
@@ -237,26 +237,72 @@ metropolis_hasting <- function(theta_0, reps, alpha, beta){
 }
 ```
 
-Luego, se consideran los valores de alpha y beta propuestos
+Luego, se consideran los valores de alpha y beta propuestos, y se tienen que $\theta_{0} = 1$ variando la cantidad de $reps$ quedará de la siguiente manera:
 
-```{r}
+```{r, fig.width=12}
 alpha <- 5
 beta <- 1/5
-beta_0 <- 1
+theta_0 <- 1
 
-iteraciones_list <- c(100, 1000, 10000, 1e5, 1e6)
+# Variación de las reps
+reps_list <- c(100, 1000, 10000, 1e5, 1e6)
 
 par(mfrow = c(2, 2))
-for (reps in iteraciones_list) {
-  muestras <- metropolis_hasting(beta_0, reps, alpha, beta)
-  hist(muestras, probability = TRUE, main = paste("Iteraciones:", reps),
+
+# Graficando
+for (reps in reps_list) {
+  muestras <- metropolis_hasting(theta_0, reps, alpha, beta)
+  hist(muestras, probability = TRUE, main = paste("Repeticiones:", reps),
        xlab = "x", breaks = 50, col = "lightblue")
+  
+  #Para comparar con la distribución gamma real 
+  curve(dgamma(x, shape = alpha, rate = beta), add = TRUE, col = "red", lwd = 2, lty = 1)
 
 }
 
 ```
 
- 
+Es posible ver en los histogramas que inicialmente con una cantidad de repeticiones relativamente bajas no se logra apreciar la forma de una distribución gamma, sin embargo al llegar al orden de las 1e5 repiticiones ya se logra apreciar que es muy similiar y para 1e6 ya es prácticamente igual. Por lo que se puede concluir que para una mayor cantidad de repeticones el modelo de Metropolis-Hasting se va pareciendo cada vez más a una distibución gamma real.
+
+Luego, para una cantidad de $reps = 1e5$ y con variaciones del valor de $\theta_{0}$. Se tendrá lo siguiente:
+
+```{r, fig.width=12}
+
+reps <- 1e5
+# Variación de los thetas
+thetas_list <- c(1, 2, 3, 4, 5, 6, 7, 8)
+
+# Graficando
+par(mfrow = c(2, 2))
+for (theta in thetas_list) {
+  muestras <- metropolis_hasting(theta, reps, alpha, beta)
+  hist(muestras, probability = TRUE, main = paste("theta inicial:", theta),
+       xlab = "x", breaks = 50, col = "lightblue")
+  curve(dgamma(x, shape = alpha, rate = beta), add = TRUE, col = "red", lwd = 2, lty = 1)
+
+}
+```
+
+Es posible ver que para todos los valores de $\theta_{0}$ estudiados se tendrá que el modelo es bastante similiar al esperado, por lo que es posible concluir que está variable no tiene una gran influencia en el modelo de Metropolis-Hasting.
+
+Finalmente se elegirán los valores $\theta_{0} = 4$ y $reps = 1e6$ por el análisis realizado anteriormente. Resultando:
+
+```{r, fig.width=12}
+theta_0 <- 4
+reps <- 1e6
+
+# Generando el modelo con Metropolis Hasting
+muestras <- metropolis_hasting(theta_0, reps, alpha, beta)
+
+# Graficar
+hist(muestras, probability = TRUE, main = "Comparación con la distribución real",
+     xlab = "x", breaks = 50, col = "lightblue")
+curve(dgamma(x, shape = alpha, rate = beta), add = TRUE, col = "red", lwd = 2, lty = 1)
+legend("topright", legend = c("Distribución  gamma real"), col = c("red"),
+       lty = c(1, 2), lwd = 2)
+```
+
+Como es posible ver en el histograma, la aproximación obtenida con el modelo de Metropolis-Hasting coincide satisfactoriamente con la distribución gamma real. Por lo tanto este modelo daría como resultado estimaciones bastante acertadas con la realidad.
 
 <hr />
 
